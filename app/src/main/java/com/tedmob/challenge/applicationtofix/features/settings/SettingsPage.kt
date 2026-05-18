@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
@@ -31,13 +32,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tedmob.challenge.applicationtofix.BuildConfig
+import com.tedmob.challenge.applicationtofix.R
 import com.tedmob.challenge.applicationtofix.theme.AppTheme
 import com.tedmob.challenge.applicationtofix.ui.AppProgress
 import com.tedmob.challenge.applicationtofix.ui.AppTopBar
@@ -51,6 +56,8 @@ fun SettingsPage(
     val viewModel = viewModel<SettingsViewModel>()
     val pageState by viewModel.state.collectAsState()
 
+    val uriHandler = LocalUriHandler.current
+
     Column(
         Modifier.fillMaxSize(),
     ) {
@@ -61,6 +68,9 @@ fun SettingsPage(
         )
         SettingsUI(
             onLogout = { viewModel.logout() },
+            onPrivacyPolicy = {
+                uriHandler.openUri(uri = "https://www.termsfeed.com/blog/privacy-policy-url/")
+            },
             Modifier
                 .windowInsetsPadding(
                     WindowInsets.safeDrawing.only(
@@ -95,6 +105,7 @@ fun SettingsPage(
 @Composable
 private fun SettingsUI(
     onLogout: () -> Unit,
+    onPrivacyPolicy: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -107,10 +118,19 @@ private fun SettingsUI(
         fun copyVersionToClipboard() {
             coroutineScope.launch {
                 clipboard.setClipEntry(
-                    ClipEntry(ClipData.newPlainText("ApplicationToFix version", BuildConfig.VERSION_NAME))
+                    ClipEntry(
+                        ClipData.newPlainText(
+                            "ApplicationToFix version",
+                            BuildConfig.VERSION_NAME
+                        )
+                    )
                 )
             }
-            Toast.makeText(context, "\"${BuildConfig.VERSION_NAME}\" copied to clipboard.", Toast.LENGTH_LONG)
+            Toast.makeText(
+                context,
+                "\"${BuildConfig.VERSION_NAME}\" copied to clipboard.",
+                Toast.LENGTH_LONG
+            )
                 .show()
         }
 
@@ -127,7 +147,7 @@ private fun SettingsUI(
             Icon(Icons.Default.Settings, null)
             Spacer(Modifier.width(8.dp))
             Column {
-                Text("App Version")
+                Text(stringResource(R.string.app_version))
                 Text(BuildConfig.VERSION_NAME, style = MaterialTheme.typography.labelMedium)
             }
         }
@@ -141,7 +161,22 @@ private fun SettingsUI(
         ) {
             Icon(Icons.AutoMirrored.Default.Logout, null)
             Spacer(Modifier.width(8.dp))
-            Text("Logout")
+            Text(stringResource(R.string.logout))
+        }
+
+        Row(
+            Modifier
+                .clickable { onPrivacyPolicy() }
+                .padding(16.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(Icons.Default.Info, null)
+            Spacer(Modifier.width(8.dp))
+            Text(
+                stringResource(R.string.privacy_policy),
+                color = Color.Blue
+            )
         }
     }
 }
@@ -153,6 +188,7 @@ private fun SettingsUI_Preview() {
     AppTheme {
         SettingsUI(
             onLogout = {},
+            onPrivacyPolicy = {},
             Modifier.fillMaxSize(),
         )
     }

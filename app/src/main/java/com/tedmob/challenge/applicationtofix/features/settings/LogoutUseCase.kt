@@ -11,8 +11,12 @@ class LogoutUseCase(
 ) {
 
     suspend fun execute() {
-        prefs.accessToken = ""
-        prefs.user = null
-        api.logout()
+        try {
+            api.logout()
+            prefs.accessToken = ""
+            prefs.user = null
+        }catch (e: Exception){
+            throw e
+        }
     }
 }
