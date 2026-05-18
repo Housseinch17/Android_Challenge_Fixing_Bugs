@@ -19,7 +19,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,6 +29,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tedmob.challenge.applicationtofix.theme.AppTheme
 import com.tedmob.challenge.applicationtofix.ui.AppProgress
@@ -42,8 +42,7 @@ fun LoginPage(
     onRedirectToRegister: () -> Unit,
 ) {
     val viewModel = viewModel<LoginViewModel>()
-    val loginState by viewModel.state.collectAsState()
-    var missingError: String? by remember { mutableStateOf(null) }
+    val loginState by viewModel.state.collectAsStateWithLifecycle()
 
     Column(
         Modifier.fillMaxSize(),
@@ -54,17 +53,7 @@ fun LoginPage(
         )
 
         LoginUI(
-            onLogin = { username, password ->
-                if (username.isEmpty()) {
-                    missingError = "Username is required"
-                } else if (password.isEmpty()) {
-                    missingError = "Password is required"
-                } else {
-                    viewModel.login(username, password)
-                }
-            },
-            onRegister = onRedirectToRegister,
-            Modifier
+            modifier = Modifier
                 .windowInsetsPadding(
                     WindowInsets.safeDrawing.only(
                         WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom
@@ -72,12 +61,25 @@ fun LoginPage(
                 )
                 .weight(1f)
                 .fillMaxWidth(),
+            onLogin = viewModel::login,
+            onRegister = onRedirectToRegister,
+            username = loginState.username,
+            updateUsername = { newUsername ->
+                viewModel.updateUsername(newUsername)
+            },
+            password = loginState.password,
+            updatePassword = { newPassword ->
+                viewModel.updatePassword(
+                    password = newPassword
+                )
+            },
         )
     }
-
-    missingError?.let {
+    loginState.missingError?.let {
         LoginMissingDialog(
-            onDismiss = { missingError = null },
+            onDismiss = {
+                viewModel.dismissMissingError(missingError = null)
+            },
             text = {
                 Text(it)
             },
@@ -109,13 +111,14 @@ fun LoginPage(
 
 @Composable
 private fun LoginUI(
-    onLogin: (username: String, password: String) -> Unit,
+    modifier: Modifier = Modifier,
+    onLogin: () -> Unit,
     onRegister: () -> Unit,
-    modifier: Modifier,
+    username: String,
+    updateUsername: (String) -> Unit,
+    password: String,
+    updatePassword: (String) -> Unit,
 ) {
-    var username: String by remember { mutableStateOf("") }
-    var pass: String by remember { mutableStateOf("") }
-
     var isPasswordMasked: Boolean by remember { mutableStateOf(true) }
 
     Column(
@@ -124,7 +127,9 @@ private fun LoginUI(
     ) {
         TextField(
             username,
-            onValueChange = { username },
+            onValueChange = {
+                updateUsername(it)
+            },
             Modifier.fillMaxWidth(),
             label = { Text("Username") },
             keyboardOptions = KeyboardOptions(
@@ -133,8 +138,8 @@ private fun LoginUI(
         )
         Spacer(Modifier.height(16.dp))
         TextField(
-            pass,
-            onValueChange = { pass = it },
+            password,
+            onValueChange = { updatePassword(it) },
             Modifier.fillMaxWidth(),
             label = { Text("Password") },
             keyboardOptions = KeyboardOptions(
@@ -154,9 +159,7 @@ private fun LoginUI(
 
         Spacer(Modifier.weight(1f))
         Button(
-            onClick = {
-                onLogin(username, pass)
-            },
+            onClick = onLogin,
             Modifier.fillMaxWidth(),
         ) {
             Text("Login")
@@ -197,9 +200,13 @@ private fun LoginMissingDialog(
 private fun LoginUI_Preview() {
     AppTheme {
         LoginUI(
-            onLogin = { username, password -> },
+            modifier = Modifier.fillMaxSize(),
+            onLogin = {},
             onRegister = {},
-            Modifier.fillMaxSize(),
+            username = "User",
+            updateUsername = {},
+            password = "123456",
+            updatePassword = {},
         )
     }
 }
