@@ -3,7 +3,7 @@ package com.tedmob.challenge.applicationtofix.features.launch
 import kotlinx.serialization.Serializable
 
 sealed interface RootRoute {
-
+    @Serializable
     data object Splash : RootRoute
 
     @Serializable
