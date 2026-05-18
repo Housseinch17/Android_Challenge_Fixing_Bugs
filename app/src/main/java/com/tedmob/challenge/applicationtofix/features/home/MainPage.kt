@@ -56,7 +56,7 @@ fun MainPage(
             composable<MainRoute.Breeds> {
                 BreedsPage(
                     onSelectedBreed = {
-                        navController.navigate(MainRoute.BreedDetails(it.name))
+                        navController.navigate(MainRoute.BreedDetails(it.id))
                     },
                 )
             }
