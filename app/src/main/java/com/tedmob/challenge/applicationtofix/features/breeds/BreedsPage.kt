@@ -126,7 +126,7 @@ private fun BreedItemComponent(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(
-            Modifier.fillMaxWidth(),
+            Modifier.weight(1f),
         ) {
             Text(
                 item.name,
@@ -137,8 +137,8 @@ private fun BreedItemComponent(
                 item.description,
                 style = MaterialTheme.typography.bodyLarge,
             )
-            Icon(Icons.AutoMirrored.Default.ArrowForward, null)
         }
+        Icon(Icons.AutoMirrored.Default.ArrowForward, null)
     }
 }
 
