@@ -28,7 +28,7 @@ fun HomePage(
 
     HomeUI(
         username,
-        onRedirectToProfile = { },
+        onRedirectToProfile = onRedirectToProfile,
         Modifier
             .windowInsetsPadding(
                 WindowInsets.safeDrawing.only(

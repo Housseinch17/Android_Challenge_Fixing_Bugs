@@ -14,7 +14,7 @@ class HomeViewModel(
 
     val prefs: SharedPreferences = App.prefs
 
-    private val _username = MutableStateFlow(prefs.user?.firstName)
+    private val _username = MutableStateFlow(prefs.user?.username)
     val username = _username.asStateFlow()
 
 
