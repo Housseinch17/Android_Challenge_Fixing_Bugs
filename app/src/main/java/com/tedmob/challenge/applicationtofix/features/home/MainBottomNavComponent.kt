@@ -29,6 +29,7 @@ fun MainBottomNavComponent(
         listOf(
             MainRoute.Home::class,
             MainRoute.Breeds::class,
+            MainRoute.Profile::class
         )
     }
 
