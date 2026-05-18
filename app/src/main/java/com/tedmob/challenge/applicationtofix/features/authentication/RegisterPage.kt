@@ -18,7 +18,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,6 +28,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tedmob.challenge.applicationtofix.theme.AppTheme
 import com.tedmob.challenge.applicationtofix.ui.AppProgress
@@ -41,8 +41,7 @@ fun RegisterPage(
     onRedirectToLogin: () -> Unit,
 ) {
     val viewModel = viewModel<RegisterViewModel>()
-    val registerState by viewModel.state.collectAsState()
-    var missingError: String? by remember { mutableStateOf(null) }
+    val registerState by viewModel.state.collectAsStateWithLifecycle()
 
     Column(
         Modifier.fillMaxSize(),
@@ -56,25 +55,7 @@ fun RegisterPage(
         )
 
         RegisterUI(
-            onRegister = { firstName, lastName, username, password, confirmPassword ->
-                if (firstName.isEmpty()) {
-                    missingError = "First Name is required"
-                } else if (lastName.isEmpty()) {
-                    missingError = "Last Name is required"
-                } else if (username.isEmpty()) {
-                    missingError = "Username is required"
-                } else if (password.isEmpty()) {
-                    missingError = "Password is required"
-                } else {
-                    viewModel.register(
-                        firstName,
-                        lastName,
-                        username,
-                        password,
-                    )
-                }
-            },
-            Modifier
+            modifier = Modifier
                 .windowInsetsPadding(
                     WindowInsets.safeDrawing.only(
                         WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom
@@ -82,57 +63,76 @@ fun RegisterPage(
                 )
                 .weight(1f)
                 .fillMaxWidth(),
+            onRegister = viewModel::register,
+            firstName = registerState.firstName,
+            updateFirstName = { newFirstName->
+                viewModel.updateFirstName(firstName = newFirstName)
+            },
+            lastName = registerState.lastName,
+            updateLastName = { newLastName->
+                viewModel.updateLastName(lastName = newLastName)
+            },
+            username = registerState.username,
+            updateUsername = { newUsername->
+                viewModel.updateUsername(username = newUsername)
+            },
+            password = registerState.password,
+            updatePassword = { newPassword->
+                viewModel.updatePassword(password = newPassword)
+            },
+            confirmPassword = registerState.confirmPassword,
+            updateConfirmPassword = { newConfirmPassword->
+                viewModel.updateConfirmPassword(confirmPassword = newConfirmPassword)
+            },
         )
-    }
+        registerState.missingError?.let {
+            RegisterMissingDialog(
+                onDismiss = { viewModel.dismissMissingError(missingError = null) },
+                text = {
+                    Text(it)
+                },
+            )
+        }
 
-    missingError?.let {
-        RegisterMissingDialog(
-            onDismiss = { missingError = null },
-            text = {
-                Text(it)
-            },
-        )
-    }
-
-    if (registerState.isRegistering) {
-        AppProgress()
-    }
-    registerState.registerError?.let { error ->
-        AlertDialog(
-            onDismissRequest = viewModel::consumeRegisterState,
-            confirmButton = {
-                TextButton(onClick = viewModel::consumeRegisterState) {
-                    Text("Close")
-                }
-            },
-            text = {
-                Text(error)
-            },
-        )
-    }
-    if (registerState.redirectToLogin) {
-        onRedirectToLogin()
-        viewModel.consumeRegisterState()
+        if (registerState.isRegistering) {
+            AppProgress()
+        }
+        registerState.registerError?.let { error ->
+            AlertDialog(
+                onDismissRequest = viewModel::consumeRegisterState,
+                confirmButton = {
+                    TextButton(onClick = viewModel::consumeRegisterState) {
+                        Text("Close")
+                    }
+                },
+                text = {
+                    Text(error)
+                },
+            )
+        }
+        if (registerState.redirectToLogin) {
+            onRedirectToLogin()
+            viewModel.consumeRegisterState()
+        }
     }
 }
 
 
 @Composable
 private fun RegisterUI(
-    onRegister: (
-        firstName: String,
-        lastName: String,
-        username: String,
-        pass: String,
-        confirmPass: String,
-    ) -> Unit,
     modifier: Modifier = Modifier,
+    firstName: String,
+    updateFirstName: (String) -> Unit,
+    lastName: String,
+    updateLastName: (String) -> Unit,
+    username: String,
+    updateUsername: (String) -> Unit,
+    password: String,
+    updatePassword: (String) -> Unit,
+    confirmPassword: String,
+    updateConfirmPassword: (String) -> Unit,
+    onRegister: () -> Unit,
 ) {
-    var firstName: String by remember { mutableStateOf("") }
-    var lastName: String by remember { mutableStateOf("") }
-    var username: String by remember { mutableStateOf("") }
-    var pass: String by remember { mutableStateOf("") }
-    var confirmPass: String by remember { mutableStateOf("") }
 
     var isPasswordMasked: Boolean by remember { mutableStateOf(true) }
     var isConfirmPasswordMasked: Boolean by remember { mutableStateOf(true) }
@@ -143,7 +143,7 @@ private fun RegisterUI(
     ) {
         TextField(
             firstName,
-            onValueChange = { firstName = it },
+            onValueChange = { updateFirstName(it) },
             Modifier.fillMaxWidth(),
             label = { Text("First Name") },
             keyboardOptions = KeyboardOptions(
@@ -153,7 +153,7 @@ private fun RegisterUI(
         Spacer(Modifier.height(16.dp))
         TextField(
             lastName,
-            onValueChange = { lastName = it },
+            onValueChange = { updateLastName(it) },
             Modifier.fillMaxWidth(),
             label = { Text("Last Name") },
             keyboardOptions = KeyboardOptions(
@@ -163,7 +163,7 @@ private fun RegisterUI(
         Spacer(Modifier.height(16.dp))
         TextField(
             username,
-            onValueChange = { username = it },
+            onValueChange = { updateUsername(it) },
             Modifier.fillMaxWidth(),
             label = { Text("Username") },
             keyboardOptions = KeyboardOptions(
@@ -172,8 +172,8 @@ private fun RegisterUI(
         )
         Spacer(Modifier.height(16.dp))
         TextField(
-            pass,
-            onValueChange = { pass = it },
+            password,
+            onValueChange = { updatePassword(it) },
             Modifier.fillMaxWidth(),
             label = { Text("Password") },
             keyboardOptions = KeyboardOptions(
@@ -192,8 +192,8 @@ private fun RegisterUI(
         )
         Spacer(Modifier.height(16.dp))
         TextField(
-            confirmPass,
-            onValueChange = { confirmPass = it },
+            confirmPassword,
+            onValueChange = { updateConfirmPassword(it) },
             Modifier.fillMaxWidth(),
             label = { Text("Confirm Password") },
             keyboardOptions = KeyboardOptions(
@@ -205,7 +205,7 @@ private fun RegisterUI(
                     onToggle = { isConfirmPasswordMasked = !isConfirmPasswordMasked },
                 )
             },
-            visualTransformation = if (isPasswordMasked)
+            visualTransformation = if (isConfirmPasswordMasked)
                 PasswordVisualTransformation()
             else
                 VisualTransformation.None,
@@ -213,9 +213,7 @@ private fun RegisterUI(
 
         Spacer(Modifier.weight(1f))
         Button(
-            onClick = {
-                onRegister(firstName, lastName, username, pass, confirmPass)
-            },
+            onClick = onRegister,
             Modifier.fillMaxWidth(),
         ) {
             Text("Register")
@@ -248,8 +246,18 @@ private fun RegisterMissingDialog(
 private fun RegisterUI_Preview() {
     AppTheme {
         RegisterUI(
-            onRegister = { _, _, _, _, _ -> },
-            Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize(),
+            firstName = "Houssein",
+            updateFirstName = {},
+            lastName = "Cha",
+            updateLastName = {  },
+            username = "HousseinCh",
+            updateUsername = {  },
+            password = "123123",
+            updatePassword = {},
+            confirmPassword = "123123",
+            updateConfirmPassword = {  },
+            onRegister = {},
         )
     }
 }
