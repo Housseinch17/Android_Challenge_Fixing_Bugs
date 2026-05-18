@@ -133,6 +133,20 @@ private fun SettingsUI(
             )
                 .show()
         }
+        Row(
+            Modifier
+                .clickable { onPrivacyPolicy() }
+                .padding(16.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(Icons.Default.Info, null)
+            Spacer(Modifier.width(8.dp))
+            Text(
+                stringResource(R.string.privacy_policy),
+                color = Color.Blue
+            )
+        }
 
         Row(
             Modifier
@@ -162,21 +176,6 @@ private fun SettingsUI(
             Icon(Icons.AutoMirrored.Default.Logout, null)
             Spacer(Modifier.width(8.dp))
             Text(stringResource(R.string.logout))
-        }
-
-        Row(
-            Modifier
-                .clickable { onPrivacyPolicy() }
-                .padding(16.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(Icons.Default.Info, null)
-            Spacer(Modifier.width(8.dp))
-            Text(
-                stringResource(R.string.privacy_policy),
-                color = Color.Blue
-            )
         }
     }
 }
