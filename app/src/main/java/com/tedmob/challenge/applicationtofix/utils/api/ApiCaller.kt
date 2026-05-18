@@ -24,8 +24,19 @@ abstract class ApiCaller(
             response
         } else {
             val errorBody = response.body.use { it.string() }
-            throw Exception(errorBody.takeIf { it.isNotBlank() } ?: response.message)
+            throw Exception(errorBody.takeIf { it.isNotBlank() } ?: response.toErrorMessage())
         }
+    }
+
+    private fun Response.toErrorMessage(): String = when (code) {
+        400 -> "Bad request"
+        401 -> "Unauthorized"
+        403 -> "Forbidden"
+        404 -> "Breed not found"
+        500 -> "Internal Server error"
+        502 -> "Bad gateway"
+        503 -> "Service Unavailable"
+        else -> this.message
     }
 
     protected fun buildJSONRequestBody(build: JsonObjectBuilder.() -> Unit): RequestBody =

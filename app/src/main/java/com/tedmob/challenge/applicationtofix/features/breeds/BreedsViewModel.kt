@@ -1,6 +1,5 @@
 package com.tedmob.challenge.applicationtofix.features.breeds
 
-import android.util.Log
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -56,7 +55,6 @@ class BreedsViewModel(
                             error = it.message
                         )
                     }
-                    Log.d("MyTag","error: ${it.localizedMessage}")
                 },
             )
         }

@@ -1,6 +1,5 @@
 package com.tedmob.challenge.applicationtofix.features.authentication
 
-import android.util.Log
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -99,14 +98,6 @@ class RegisterViewModel(
                 return
             }
         }
-
-        Log.d("MyTag",
-            "firstName: $firstName " +
-                    "lastName: $lastName" +
-                    "username: $username" +
-                    "password: $password" +
-                    "confirmPassword: $confirmPassword")
-
         viewModelScope.launch {
             runCatching {
                 _state.value = _state.value.copy(

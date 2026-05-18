@@ -72,7 +72,6 @@ class MainApi(
                 method = "GET",
             )
         ).executeAsyncIfSuccessful()
-
         return json.decodeFromBufferedSource(response.body.source())
     }
 

@@ -70,10 +70,7 @@ fun MainPage(
             }
 
             composable<MainRoute.BreedDetails> {
-                val args = currentRoute as? MainRoute.BreedDetails ?: return@composable
-                BreedDetailsPage(
-                    args.id,
-                )
+                BreedDetailsPage()
             }
 
             composable<MainRoute.Settings> {

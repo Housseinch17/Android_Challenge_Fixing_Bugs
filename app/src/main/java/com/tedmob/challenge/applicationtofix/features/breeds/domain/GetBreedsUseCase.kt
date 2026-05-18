@@ -14,7 +14,7 @@ class GetBreedsUseCase(
                 Breed(
                     it.id,
                     it.attributes?.name.orEmpty(),
-                    it.attributes?.name.orEmpty(),
+                    it.attributes?.description.orEmpty(),
                 )
             }
     }

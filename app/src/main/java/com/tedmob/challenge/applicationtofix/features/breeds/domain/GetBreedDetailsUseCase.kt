@@ -18,10 +18,10 @@ class GetBreedDetailsUseCase(
     suspend fun execute(params: Params): BreedDetails {
         return api.breed(params.id)
             .let {
-                val attributes = it.attributes
+                val attributes = it.data.attributes
 
                 BreedDetails(
-                    it.id,
+                    it.data.id,
                     attributes?.name.orEmpty(),
                     attributes?.description.orEmpty(),
                     attributes?.life?.min?.let { formatter.format(it) }.orEmpty(),

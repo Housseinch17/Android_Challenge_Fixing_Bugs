@@ -25,7 +25,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,7 +34,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tedmob.challenge.applicationtofix.data.entity.Breed
-import com.tedmob.challenge.applicationtofix.features.breeds.BreedsViewModel
 import com.tedmob.challenge.applicationtofix.theme.AppTheme
 
 @Composable
@@ -139,8 +137,8 @@ private fun BreedItemComponent(
                 item.description,
                 style = MaterialTheme.typography.bodyLarge,
             )
+            Icon(Icons.AutoMirrored.Default.ArrowForward, null)
         }
-        Icon(Icons.AutoMirrored.Default.ArrowForward, null)
     }
 }
 

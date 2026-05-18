@@ -5,10 +5,13 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 class BreedDetailsResponseDTO(
-    @SerialName("id") val id: String,
-    @SerialName("attributes") val attributes: Attributes?,
+    @SerialName("data") val data: Data
 ) {
-
+    @Serializable
+    class Data(
+        @SerialName("id") val id: String,
+        @SerialName("attributes") val attributes: Attributes?,
+    )
     @Serializable
     class Attributes(
         @SerialName("name") val name: String?,
