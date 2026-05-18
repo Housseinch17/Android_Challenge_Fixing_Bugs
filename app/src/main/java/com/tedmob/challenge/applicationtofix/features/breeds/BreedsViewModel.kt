@@ -1,5 +1,6 @@
 package com.tedmob.challenge.applicationtofix.features.breeds
 
+import android.util.Log
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,6 +9,7 @@ import com.tedmob.challenge.applicationtofix.data.entity.Breed
 import com.tedmob.challenge.applicationtofix.features.breeds.domain.GetBreedsUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class BreedsViewModel(
@@ -22,7 +24,7 @@ class BreedsViewModel(
     )
 
 
-    private val getBreedsUseCase = GetBreedsUseCase(App.Companion.mainApi)
+    private val getBreedsUseCase = GetBreedsUseCase(App.mainApi)
 
 
     private val _state = MutableStateFlow(State())
@@ -31,21 +33,30 @@ class BreedsViewModel(
 
     fun getBreeds() {
         viewModelScope.launch {
-            _state.value = _state.value.copy(isLoading = true)
+            _state.update { newState->
+                newState.copy(
+                    isLoading = true
+                )
+            }
             runCatching {
                 getBreedsUseCase.execute()
             }.fold(
                 onSuccess = {
-                    _state.value = _state.value.copy(
-                        isLoading = false,
-                        data = it,
-                    )
+                    _state.update { newState->
+                        newState.copy(
+                            isLoading = false,
+                            data = it,
+                        )
+                    }
                 },
                 onFailure = {
-                    _state.value = _state.value.copy(
-                        isLoading = false,
-                        error = it.message,
-                    )
+                    _state.update { newState->
+                        newState.copy(
+                            isLoading = false,
+                            error = it.message
+                        )
+                    }
+                    Log.d("MyTag","error: ${it.localizedMessage}")
                 },
             )
         }

@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tedmob.challenge.applicationtofix.data.entity.Breed
 import com.tedmob.challenge.applicationtofix.features.breeds.BreedsViewModel
@@ -42,7 +43,7 @@ fun BreedsPage(
     onSelectedBreed: (item: Breed) -> Unit,
 ) {
     val viewModel = viewModel<BreedsViewModel>()
-    val pageState by viewModel.state.collectAsState()
+    val pageState by viewModel.state.collectAsStateWithLifecycle()
 
     when {
         pageState.isLoading -> {

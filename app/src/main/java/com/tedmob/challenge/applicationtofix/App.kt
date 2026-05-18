@@ -45,7 +45,7 @@ class App : Application() {
                     val request = it.request().newBuilder()
                         .apply {
                             if (prefs.accessToken.isNotEmpty()) {
-                                header("access_token", prefs.accessToken)
+                                header("access-token", prefs.accessToken)
                             }
                         }
                         .build()
